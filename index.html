@@ -63,90 +63,90 @@
     </div>
   </body>
 
-    <script>
-        "use strict";
+  <script>
+   "use strict";
 
-        const addFormButton = document.querySelector(".add-form-button");
-        const commentsList = document.querySelector(".comments");
-        const commentsState = [
-      {
-        id: 1,
-        name: "Глеб Фокин",
-        text: "Это будет первый комментарий на этой странице",
-        date: "12.02.22 12:18",
-        likesCount: 3,
-        isLiked: false
+   const addFormButton = document.querySelector(".add-form-button");
+   const commentsList = document.querySelector(".comments");
+   const commentsState = [
+     {
+       id: 1,
+       name: "Глеб Фокин",
+       text: "Это будет первый комментарий на этой странице",
+       date: "12.02.22 12:18",
+       likesCount: 3,
+       isLiked: false
       },
       {
-        id: 2,
-        name: "Варвара Н.",
-        text: "Мне нравится как оформлена эта страница! ❤",
-        date: "13.02.22 19:22",
-        likesCount: 75,
-        isLiked: true
+       id: 2,
+       name: "Варвара Н.",
+       text: "Мне нравится как оформлена эта страница! ❤",
+       date: "13.02.22 19:22",
+       likesCount: 75,
+       isLiked: true
       }
     ];
-        function renderComments() {
+    function renderComments() {
       commentsList.innerHTML = "";
 
       commentsState.forEach((comment) => {
-        const li = document.createElement("li");
-        li.className = "comment";
+       const li = document.createElement("li");
+       li.className = "comment";
 
-        const header = document.createElement("div");
-        header.className = "comment-header";
+       const header = document.createElement("div");
+       header.className = "comment-header";
 
-        const nameDiv = document.createElement("div");
-        nameDiv.textContent = comment.name;
+       const nameDiv = document.createElement("div");
+       nameDiv.textContent = comment.name;
 
-        const dateDiv = document.createElement("div");
-        dateDiv.textContent = comment.date;
+       const dateDiv = document.createElement("div");
+       dateDiv.textContent = comment.date;
 
-        header.appendChild(nameDiv);
-        header.appendChild(dateDiv);
+       header.appendChild(nameDiv);
+       header.appendChild(dateDiv);
 
-        const body = document.createElement("div");
-        body.className = "comment-body";
+       const body = document.createElement("div");
+       body.className = "comment-body";
 
-        const textDiv = document.createElement("div");
-        textDiv.className = "comment-text";
-        textDiv.textContent = comment.text;
+       const textDiv = document.createElement("div");
+       textDiv.className = "comment-text";
+       textDiv.textContent = comment.text;
 
-        body.appendChild(textDiv);
+       body.appendChild(textDiv);
 
-        const footer = document.createElement("div");
-        footer.className = "comment-footer";
+       const footer = document.createElement("div");
+       footer.className = "comment-footer";
 
-        const likesWrap = document.createElement("div");
-        likesWrap.className = "likes";
+       const likesWrap = document.createElement("div");
+       likesWrap.className = "likes";
 
-        const likesCounter = document.createElement("span");
-        likesCounter.className = "likes-counter";
-        likesCounter.textContent = comment.likesCount;
+       const likesCounter = document.createElement("span");
+       likesCounter.className = "likes-counter";
+       likesCounter.textContent = comment.likesCount;
 
-        const likeButton = document.createElement("button");
-        likeButton.className = "like-button";
-        // 3) Класс для иконки лайка зависит от isLiked
-        if (comment.isLiked) likeButton.classList.add("-active-like");
+       const likeButton = document.createElement("button");
+       likeButton.className = "like-button";
+       
+       if (comment.isLiked) likeButton.classList.add("-active-like");
 
-        // Чтобы обработчик знал, какой комментарий лайкнули:
-        likeButton.dataset.id = String(comment.id);
+        
+       likeButton.dataset.id = String(comment.id);
 
-        likesWrap.appendChild(likesCounter);
-        likesWrap.appendChild(likeButton);
+       likesWrap.appendChild(likesCounter);
+       likesWrap.appendChild(likeButton);
 
-        footer.appendChild(likesWrap);
+       footer.appendChild(likesWrap);
 
-        li.appendChild(header);
-        li.appendChild(body);
-        li.appendChild(footer);
+       li.appendChild(header);
+       li.appendChild(body);
+       li.appendChild(footer);
 
-        commentsList.appendChild(li);
-      });
+       commentsList.appendChild(li);
+     });
     }
 
-        renderComments(); 
-        commentsList.addEventListener("click", (event) => {
+    renderComments(); 
+    commentsList.addEventListener("click", (event) => {
       const btn = event.target.closest(".like-button");
       if (!btn) return;
 
@@ -163,11 +163,11 @@
         comment.isLiked = true;
       }
 
-      // Перерендер всех комментариев
+      
       renderComments();
     });
 
-        addFormButton.addEventListener("click", function () {
+    addFormButton.addEventListener("click", function () {
       const nameInput = document.querySelector(".add-form-name");
       const textInput = document.querySelector(".add-form-text");
 
@@ -204,5 +204,7 @@
 
       renderComments();
     });
-    </script>
+  </script>
+
+
 </html>
