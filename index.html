@@ -10,38 +10,7 @@
     <div class="container">
       <ul class="comments">
         <li class="comment">
-          <div class="comment-header">
-            <div>Глеб Фокин</div>
-            <div>12.02.22 12:18</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Это будет первый комментарий на этой странице
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">3</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-        <li class="comment">
-          <div class="comment-header">
-            <div>Варвара Н.</div>
-            <div>13.02.22 19:22</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Мне нравится как оформлена эта страница! ❤
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">75</span>
-              <button class="like-button -active-like"></button>
-            </div>
-          </div>
+          
         </li>
       </ul>
       <div class="add-form">
@@ -64,11 +33,13 @@
   </body>
 
   <script>
-   "use strict";
+    "use strict";
 
-   const addFormButton = document.querySelector(".add-form-button");
-   const commentsList = document.querySelector(".comments");
-   const commentsState = [
+    const addFormButton = document.querySelector(".add-form-button");
+    const commentsList = document.querySelector(".comments");
+    const nameInput = document.querySelector(".add-form-name");
+    const textInput = document.querySelector(".add-form-text");
+    const commentsState = [
      {
        id: 1,
        name: "Глеб Фокин",
@@ -77,7 +48,7 @@
        likesCount: 3,
        isLiked: false
       },
-      {
+     {
        id: 2,
        name: "Варвара Н.",
        text: "Мне нравится как оформлена эта страница! ❤",
@@ -86,21 +57,31 @@
        isLiked: true
       }
     ];
+  
+    function escapeHtml(str) {
+     if (!str) return "";
+     return String(str)
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+    }
+      
     function renderComments() {
-      commentsList.innerHTML = "";
+     commentsList.innerHTML = "";
 
-      commentsState.forEach((comment) => {
+     commentsState.forEach((comment) => {
        const li = document.createElement("li");
        li.className = "comment";
-
+       li.dataset.id = String(comment.id);
+      
        const header = document.createElement("div");
        header.className = "comment-header";
 
        const nameDiv = document.createElement("div");
-       nameDiv.textContent = comment.name;
+    
+       nameDiv.textContent = escapeHtml(comment.name);
 
        const dateDiv = document.createElement("div");
-       dateDiv.textContent = comment.date;
+       dateDiv.textContent = escapeHtml(comment.date);
 
        header.appendChild(nameDiv);
        header.appendChild(dateDiv);
@@ -110,7 +91,8 @@
 
        const textDiv = document.createElement("div");
        textDiv.className = "comment-text";
-       textDiv.textContent = comment.text;
+      
+       textDiv.textContent = escapeHtml(comment.text);
 
        body.appendChild(textDiv);
 
@@ -126,51 +108,59 @@
 
        const likeButton = document.createElement("button");
        likeButton.className = "like-button";
-       
-       if (comment.isLiked) likeButton.classList.add("-active-like");
+      
+       if (comment.isLiked) {
+         likeButton.textContent = ""; 
+         likeButton.classList.add("-active-like");
+        } else {
+          likeButton.textContent = ""; 
+        }
 
-        
        likeButton.dataset.id = String(comment.id);
 
        likesWrap.appendChild(likesCounter);
        likesWrap.appendChild(likeButton);
-
        footer.appendChild(likesWrap);
 
        li.appendChild(header);
        li.appendChild(body);
        li.appendChild(footer);
-
        commentsList.appendChild(li);
-     });
+      });
     }
 
-    renderComments(); 
-    commentsList.addEventListener("click", (event) => {
-      const btn = event.target.closest(".like-button");
-      if (!btn) return;
+    renderComments();
 
-      const id = Number(btn.dataset.id);
+    commentsList.addEventListener("click", (event) => {
+   
+     const btn = event.target.closest(".like-button");
+     if (btn) {
+       event.stopPropagation(); 
+      
+       const id = Number(btn.dataset.id);
+       const comment = commentsState.find((c) => c.id === id);
+       if (!comment) return;
+
+       comment.isLiked = !comment.isLiked;
+       comment.likesCount = comment.isLiked ? comment.likesCount + 1 : comment.likesCount - 1;
+
+       renderComments();
+       return;
+      }
+    
+      const li = event.target.closest(".comment");
+      if (!li) return;
+
+      const id = Number(li.dataset.id);
       const comment = commentsState.find((c) => c.id === id);
       if (!comment) return;
-
-      // Изменяем значения ключей в массиве
-      if (comment.isLiked) {
-        comment.likesCount -= 1;
-        comment.isLiked = false;
-      } else {
-        comment.likesCount += 1;
-        comment.isLiked = true;
-      }
-
-      
-      renderComments();
+    
+      textInput.value = ` ${comment.name}:${comment.text}`;
+    
+      textInput.focus();
     });
 
     addFormButton.addEventListener("click", function () {
-      const nameInput = document.querySelector(".add-form-name");
-      const textInput = document.querySelector(".add-form-text");
-
       const name = nameInput.value.trim();
       const text = textInput.value.trim();
 
@@ -178,33 +168,36 @@
         alert("Пожалуйста, заполните имя и текст комментария.");
         return;
       }
+    
+      const safeName = escapeHtml(name);
+      const safeText = escapeHtml(text);
 
       const nextId =
-        commentsState.length > 0
-          ? Math.max(...commentsState.map((c) => c.id)) + 1
-          : 1;
+      commentsState.length > 0
+      ? Math.max(...commentsState.map((c) => c.id)) + 1
+      : 1;
 
       commentsState.push({
-        id: nextId,
-        name,
-        text,
-        date: new Date().toLocaleString("ru-RU", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit"
+       id: nextId,
+       name: safeName,
+       text: safeText, 
+       date: new Date().toLocaleString("ru-RU", {
+         day: "2-digit",
+         month: "2-digit",
+         year: "2-digit",
+         hour: "2-digit",
+         minute: "2-digit"
         }),
-        likesCount: 0,
-        isLiked: false
+       likesCount: 0,
+       isLiked: false
       });
 
-      nameInput.value = "";
-      textInput.value = "";
+     nameInput.value = "";
+     textInput.value = "";
 
-      renderComments();
+     renderComments();
     });
+  
   </script>
-
 
 </html>
