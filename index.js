@@ -1,4 +1,3 @@
-
 import { renderComments } from "./modules/rendercomments.js";
 import { addComment, toggleLike, commentsState } from "./modules/comments.js";
 
@@ -6,7 +5,6 @@ const addFormButton = document.querySelector(".add-form-button");
 const commentsList = document.querySelector(".comments");
 const nameInput = document.querySelector(".add-form-name");
 const textInput = document.querySelector(".add-form-text");
-
 
 renderComments(commentsList);
 
@@ -20,7 +18,6 @@ commentsList.addEventListener("click", (event) => {
     renderComments(commentsList);
     return;
   }
-
   const li = event.target.closest(".comment");
   if (!li) return;
 
