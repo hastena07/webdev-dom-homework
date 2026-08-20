@@ -45,10 +45,10 @@ export function renderComments(commentsList) {
     likeButton.className = "like-button";
 
     if (comment.isLiked) {
-      likeButton.textContent = "❤️"; 
+      likeButton.textContent = ""; 
       likeButton.classList.add("-active-like");
     } else {
-      likeButton.textContent = "🤍"; 
+      likeButton.textContent = ""; 
     }
 
     likeButton.dataset.id = String(comment.id);
