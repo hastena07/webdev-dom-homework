@@ -10,7 +10,7 @@ export function renderComments(commentsList) {
     return;
   }
 
-  commentsState.forEach(comment => {
+  commentsState.forEach((comment) => {
     const li = document.createElement('li');
     li.className = 'comment';
     li.dataset.id = String(comment.id);
@@ -51,6 +51,14 @@ export function renderComments(commentsList) {
 
     if (comment.isLiked) {
       likeButton.classList.add('-active-like');
+    } else {
+      likeButton.classList.remove('-active-like');
+    }
+
+    if (comment.isLikeLoading) {
+      likeButton.classList.add('-loading-like');
+    } else {
+      likeButton.classList.remove('-loading-like');
     }
 
     likeButton.dataset.id = String(comment.id);

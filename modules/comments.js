@@ -1,11 +1,11 @@
 import { escapeHtml } from '../modules/utils.js';
-
+import { delay } from '../modules/utils.js';
 
 export const commentsState = [];
 
 export const updateComments = (newComments) => {
-  commentsState.length = 0; 
-  newComments.forEach(c => commentsState.push(c));
+  commentsState.length = 0;
+  newComments.forEach((c) => commentsState.push(c));
 };
 
 export function addComment(name, text) {
@@ -13,7 +13,7 @@ export function addComment(name, text) {
   const safeText = escapeHtml(text);
 
   const nextId = commentsState.length > 0
-    ? Math.max(...commentsState.map(c => c.id)) + 1
+    ? Math.max(...commentsState.map((c) => c.id)) + 1
     : 1;
 
   commentsState.push({
@@ -25,17 +25,26 @@ export function addComment(name, text) {
       month: '2-digit',
       year: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }),
     likesCount: 0,
     isLiked: false,
+    isLikeLoading: false,
   });
 }
 
 export function toggleLike(id) {
-  const comment = commentsState.find(c => c.id === id);
+  const comment = commentsState.find((c) => c.id === id);
   if (!comment) return;
 
-  comment.isLiked = !comment.isLiked;
-  comment.likesCount = comment.isLiked ? comment.likesCount + 1 : comment.likesCount - 1;
+ 
+  if (comment.isLikeLoading) return;
+  comment.isLikeLoading = true;
+
+  delay(800).then(() => {
+    comment.isLiked = !comment.isLiked;
+    comment.likesCount = comment.isLiked ? comment.likesCount + 1 : comment.likesCount - 1;
+    comment.isLikeLoading = false;
+   
+  });
 }

@@ -1,24 +1,38 @@
 import { renderComments } from './modules/rendercomments.js';
 import { toggleLike, commentsState, updateComments } from './modules/comments.js';
-import { fetchComments, postComment } from './modules/api.js';
+import { loadCommentsList, postComment } from './modules/api.js';
 
 const addFormButton = document.querySelector('.add-form-button');
 const commentsList = document.querySelector('.comments');
 const nameInput = document.querySelector('.add-form-name');
 const textInput = document.querySelector('.add-form-text');
+const formLoading = document.querySelector('.form-loading');
+const commentsLoading = document.querySelector('.comments-loading');
+const addForm = document.querySelector('.add-form');
 
+function loadAndRenderComments() {
+  if (commentsLoading) {
+    commentsLoading.style.display = 'block';
+  }
+  commentsList.innerHTML = '';
 
-fetchComments()
-  .then(data => {
-    updateComments(data);
-    renderComments(commentsList);
-  })
-  .catch(err => {
-    console.error(err);
-    alert('Не удалось загрузить комментарии. Проверьте консоль.');
-  });
+  return loadCommentsList()
+    .then((data) => {
+      updateComments(data);
+      renderComments(commentsList);
+    })
+    .catch((err) => {
+      console.error(err);
+      alert('Не удалось загрузить комментарии. Проверьте консоль.');
+    })
+    .finally(() => {
+      if (commentsLoading) {
+        commentsLoading.style.display = 'none';
+      }
+    });
+}
 
-commentsList.addEventListener('click', event => {
+commentsList.addEventListener('click', (event) => {
   const btn = event.target.closest('.like-button');
   if (btn) {
     event.stopPropagation();
@@ -32,17 +46,17 @@ commentsList.addEventListener('click', event => {
   if (!li) return;
 
   const id = Number(li.dataset.id);
-  const comment = commentsState.find(c => c.id === id);
+  const comment = commentsState.find((c) => c.id === id);
   if (!comment) return;
 
   textInput.value = `${comment.name}: ${comment.text}`;
   textInput.focus();
 });
 
-addFormButton.addEventListener('click', async () => {
+addFormButton.addEventListener('click', () => {
   const name = nameInput.value.trim();
   const text = textInput.value.trim();
-
+  
   if (!name || !text) {
     alert('Пожалуйста, заполните имя и текст комментария.');
     return;
@@ -51,20 +65,43 @@ addFormButton.addEventListener('click', async () => {
   addFormButton.disabled = true;
   addFormButton.textContent = 'Отправка...';
 
-  try {
-    await postComment(name, text);
-    
-    const data = await fetchComments();
-    updateComments(data);
-    renderComments(commentsList);
-
-    nameInput.value = '';
-    textInput.value = '';
-  } catch (err) {
-    console.error(err);
-    alert('Не удалось добавить комментарий. Попробуйте позже.');
-  } finally {
-    addFormButton.disabled = false;
-    addFormButton.textContent = 'Написать';
+  if (formLoading) {
+    formLoading.style.display = 'block';
   }
+  if (addForm) {
+    addForm.style.display = 'none';
+  }
+
+  postComment(name, text)
+    .then(() => loadAndRenderComments())
+    .then(() => {
+      
+      if (formLoading) {
+        formLoading.style.display = 'none';
+      }
+      if (addForm) {
+        addForm.style.display = 'flex';
+      }
+
+      nameInput.value = '';
+      textInput.value = '';
+    })
+    .catch((err) => {
+      console.error(err);
+      
+      if (formLoading) {
+        formLoading.style.display = 'none';
+      }
+      if (addForm) {
+        addForm.style.display = 'flex';
+      }
+
+      alert('Не удалось добавить комментарий: ' + err.message);
+    })
+    .finally(() => {
+      addFormButton.disabled = false;
+      addFormButton.textContent = 'Написать';
+    });
 });
+
+loadAndRenderComments();
