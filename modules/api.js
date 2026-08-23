@@ -1,4 +1,4 @@
-const host = 'https://glebkaf.github.io/webdev-dom-homework/';
+const host = 'https://wedev-api.sky.pro/api/v1/hastena07';
 
 export const fetchComments = () => {
   return fetch(host + '/comments')
@@ -29,7 +29,7 @@ export const postComment = (name, text) => {
   
   return fetch(host + '/comments', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {'Content-Type': ''},
     body: JSON.stringify({ name, text }),
   })
   .then(res => {
