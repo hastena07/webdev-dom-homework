@@ -127,7 +127,7 @@ body {
 .add-form-button:hover {
   opacity: 0.9;
 }
-.comments-loading {
+.form-loading{
   display: none;
 }
 @keyframes rotating {
