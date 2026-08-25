@@ -119,7 +119,7 @@ addFormButton.addEventListener('click', async () => {
     console.error(err);
 
     if (formLoading) {
-      formLoading.style.display = 'none';
+      formLoading.style.display = 'block';
     }
     if (addForm) {
       addForm.style.display = 'flex';
