@@ -14,14 +14,14 @@ const textInput = document.getElementById('comment-text');
 const submitBtn = document.getElementById('add-comment-btn');
 const formLoading = document.querySelector('.form-loading');
 
-// Проверка авторизации
+
 const initAuth = () => {
   const savedToken = localStorage.getItem('app_token');
   if (savedToken) {
     addFormContainer.style.display = 'flex';
     authArea.style.display = 'none';
   } else {
-    // Неавторизованный пользователь: показываем ссылку на вход
+   
     addFormContainer.style.display = 'none';
     authArea.innerHTML = `
       <p style="font-size: 20px; color: #fff;">
@@ -35,7 +35,7 @@ const initAuth = () => {
   }
 };
 
-// Загрузка и рендер комментариев
+
 const loadAndRender = () => {
   globalLoader.style.display = 'block';
   commentsListEl.style.display = 'none';
@@ -55,7 +55,7 @@ const loadAndRender = () => {
     });
 };
 
-// Валидация
+
 const validateComment = (name, text) => {
   if (!name || name.trim().length < 3) {
     alert('Имя должно быть не короче 3 символов');
@@ -109,6 +109,6 @@ const handleSubmit = () => {
 
 submitBtn.addEventListener('click', handleSubmit);
 
-// Запуск приложения
+
 initAuth();
 loadAndRender();
