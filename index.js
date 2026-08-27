@@ -1,150 +1,114 @@
-import { renderComments } from './modules/rendercomments.js';
-import { toggleLike, commentsState, updateComments } from './modules/comments.js';
-import { loadCommentsList, postComment, ApiError } from './modules/api.js';
+import { loadCommentsList, postComment, token } from './modules/api.js';
+import { commentsState, updateComments } from './modules/comments.js';
+import { renderComments } from './modules/renderComments.js';
+import { renderLogin } from './modules/renderLogin.js';
+import { renderRegistration } from './modules/rendeRegistration.js';
+import { escapeHtml } from './modules/utils.js';
 
-const addFormButton = document.querySelector('.add-form-button');
-const commentsList = document.querySelector('.comments');
-const nameInput = document.querySelector('.add-form-name');
-const textInput = document.querySelector('.add-form-text');
+const commentsListEl = document.getElementById('comments-list');
+const globalLoader = document.getElementById('global-loader');
+const addFormContainer = document.getElementById('add-form-container');
+const authArea = document.getElementById('auth-area');
+const nameInput = document.getElementById('comment-name');
+const textInput = document.getElementById('comment-text');
+const submitBtn = document.getElementById('add-comment-btn');
 const formLoading = document.querySelector('.form-loading');
-const commentsLoading = document.querySelector('.comments-loading');
-const addForm = document.querySelector('.add-form');
 
+// Проверка авторизации
+const initAuth = () => {
+  const savedToken = localStorage.getItem('app_token');
+  if (savedToken) {
+    addFormContainer.style.display = 'flex';
+    authArea.style.display = 'none';
+  } else {
+    // Неавторизованный пользователь: показываем ссылку на вход
+    addFormContainer.style.display = 'none';
+    authArea.innerHTML = `
+      <p style="font-size: 20px; color: #fff;">
+        Чтобы добавить комментарий,
+        <span class="link-login" id="go-login">войдите</span>
+      </p>
+    `;
+    authArea.style.display = 'block';
 
-let lastNameValue = '';
-let lastTextValue = '';
-
-function loadAndRenderComments() {
-  if (commentsLoading) {
-    commentsLoading.style.display = 'block';
+    document.getElementById('go-login').addEventListener('click', renderLogin);
   }
-  commentsList.innerHTML = '';
+};
 
-  return loadCommentsList()
-    .then((data) => {
-      updateComments(data);
-      renderComments(commentsList);
+// Загрузка и рендер комментариев
+const loadAndRender = () => {
+  globalLoader.style.display = 'block';
+  commentsListEl.style.display = 'none';
+
+  loadCommentsList()
+    .then((comments) => {
+      updateComments(comments);
+      renderComments(commentsListEl);
     })
     .catch((err) => {
       console.error(err);
-      if (err instanceof ApiError) {
-        if (err.status === 500) {
-          alert('Сервер временно недоступен. Попробуйте позже.');
-        } else if (err.status >= 400 && err.status < 500) {
-          alert('Ошибка запроса: ' + err.message);
-        } else {
-          alert('Произошла ошибка: ' + err.message);
-        }
-      } else if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        alert('Нет соединения с сервером. Проверьте интернет.');
-      } else {
-        alert('Произошла непредвиденная ошибка.');
-      }
+      alert('Не удалось загрузить комментарии. Проверьте подключение к интернету.');
     })
     .finally(() => {
-      if (commentsLoading) {
-        commentsLoading.style.display = 'none';
-      }
+      globalLoader.style.display = 'none';
+      commentsListEl.style.display = 'flex';
     });
-}
+};
 
-commentsList.addEventListener('click', (event) => {
-  const btn = event.target.closest('.like-button');
-  if (btn) {
-    event.stopPropagation();
-    const id = Number(btn.dataset.id);
-    toggleLike(id);
-    renderComments(commentsList);
-    return;
+// Валидация
+const validateComment = (name, text) => {
+  if (!name || name.trim().length < 3) {
+    alert('Имя должно быть не короче 3 символов');
+    return false;
   }
-
-  const li = event.target.closest('.comment');
-  if (!li) return;
-
-  const id = Number(li.dataset.id);
-  const comment = commentsState.find((c) => c.id === id);
-  if (!comment) return;
-
-  textInput.value = `${comment.name}: ${comment.text}`;
-  textInput.focus();
-});
-
-async function sendCommentWithRetry(name, text, retriesLeft = 3) {
-  try {
-    await postComment(name, text);
-    return true; 
-  } catch (err) {
-   
-    if (err.name === 'TypeError' && err.message.includes('fetch')) {
-      throw new Error('Нет соединения с сервером');
-    }
-
-    if (!(err instanceof ApiError)) {
-      throw err;
-    }
-    if (err.status === 500 && retriesLeft > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return sendCommentWithRetry(name, text, retriesLeft - 1);
-    }
-
-    throw err;
+  if (!text || text.trim().length < 3) {
+    alert('Комментарий должен быть не короче 3 символов');
+    return false;
   }
-}
+  return true;
+};
 
-addFormButton.addEventListener('click', async () => {
+// Отправка комментария
+const handleSubmit = () => {
   const name = nameInput.value.trim();
   const text = textInput.value.trim();
 
-  if (!name || !text) {
-    alert('Пожалуйста, заполните имя и текст комментария.');
+  if (!validateComment(name, text)) return;
+
+  if (!token) {
+    renderLogin();
     return;
   }
 
-  lastNameValue = name;
-  lastTextValue = text;
+  submitBtn.disabled = true;
+  formLoading.style.display = 'block';
+  submitBtn.textContent = 'Добавляем...';
 
-  addFormButton.disabled = true;
-  addFormButton.textContent = 'Отправка...';
-
-  try {
-    await sendCommentWithRetry(name, text);
-
-    await loadAndRenderComments();
-
-    nameInput.value = '';
-    textInput.value = '';
-    lastNameValue = '';
-    lastTextValue = '';
-  } catch (err) {
-    console.error(err);
-
-    if (formLoading) {
-      formLoading.style.display = 'block';
-    }
-    if (addForm) {
-      addForm.style.display = 'flex';
-    }
-
-    nameInput.value = lastNameValue;
-    textInput.value = lastTextValue;
-
-    if (err instanceof ApiError) {
+  postComment(name, text)
+    .then(() => {
+      nameInput.value = '';
+      textInput.value = '';
+      return loadAndRender();
+    })
+    .catch((err) => {
+      console.error(err);
       if (err.status === 500) {
-        alert('Сервер временно недоступен. Мы несколько раз пытались повторить запрос, но безуспешно. Попробуйте позже.');
-      } else if (err.status >= 400 && err.status < 500) {
-        alert('Ошибка запроса (4xx): ' + err.message);
+        alert('Сервер недоступен. Попробуйте позже.');
+      } else if (err.status === 400) {
+        alert('Некорректные данные. Проверьте имя и текст комментария.');
       } else {
-        alert('Произошла ошибка: ' + err.message);
+        alert(err.message || 'Ошибка отправки комментария');
       }
-    } else if (err.message === 'Нет соединения с сервером') {
-      alert('Нет соединения с интернетом. Проверьте подключение.');
-    } else {
-      alert('Произошла непредвиденная ошибка: ' + err.message);
-    }
-  } finally {
-    addFormButton.disabled = false;
-    addFormButton.textContent = 'Написать';
-  }
-});
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      formLoading.style.display = 'none';
+      submitBtn.textContent = 'Написать';
+    });
+};
 
-loadAndRenderComments();
+submitBtn.addEventListener('click', handleSubmit);
+
+// Запуск приложения
+initAuth();
+loadAndRender();

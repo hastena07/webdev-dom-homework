@@ -1,12 +1,12 @@
 import { escapeHtml } from '../modules/utils.js';
-import { commentsState } from '../modules/comments.js';
+import { commentsState, toggleLike } from '../modules/comments.js';
 
-export function renderComments(commentsList) {
-  if (!commentsList) return;
-  commentsList.innerHTML = '';
+export function renderComments(commentsListEl) {
+  if (!commentsListEl) return;
+  commentsListEl.innerHTML = '';
 
   if (commentsState.length === 0) {
-    commentsList.innerHTML = '<li style="padding:48px; color:#888;">Комментариев пока нет</li>';
+    commentsListEl.innerHTML = '<li style="padding:48px; color:#888;">Комментариев пока нет</li>';
     return;
   }
 
@@ -63,6 +63,12 @@ export function renderComments(commentsList) {
 
     likeButton.dataset.id = String(comment.id);
 
+    // Обработчик клика по лайку
+    likeButton.addEventListener('click', () => {
+      toggleLike(comment.id);
+      renderComments(commentsListEl); // перерисовать, чтобы обновить классы/счётчик
+    });
+
     likesWrap.appendChild(likesCounter);
     likesWrap.appendChild(likeButton);
     footer.appendChild(likesWrap);
@@ -70,6 +76,6 @@ export function renderComments(commentsList) {
     li.appendChild(header);
     li.appendChild(body);
     li.appendChild(footer);
-    commentsList.appendChild(li);
+    commentsListEl.appendChild(li);
   });
 }
