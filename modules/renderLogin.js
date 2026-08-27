@@ -60,7 +60,7 @@ export const renderLogin = () => {
       .then((data) => {
         setToken(data.user.token);
         setName(data.user.name);
-        // Перезагружаем страницу, чтобы приложение инициализировалось с токеном
+        
         window.location.reload();
       })
       .catch((error) => {
