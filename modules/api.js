@@ -1,21 +1,55 @@
-const host = 'https://wedev-api.sky.pro/api/v1/hastena07';
+const host = 'https://wedev-api.sky.pro/api/v2/:hastena07';
+const authHost = 'https://wedev-api.sky.pro/api/hastena07';
 
-export const loadCommentsList = () => {
-  return fetch(host + '/comments')
+export let token = localStorage.getItem('app_token') || '';
+export const setToken = (newToken) => {
+  token = newToken;
+  localStorage.setItem('app_token', newToken);
+};
+
+export let name = localStorage.getItem('app_name') || '';
+export const setName = (newName) => {
+  name = newName;
+  localStorage.setItem('app_name', newName);
+};
+
+export class ApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
+}
+
+const request = (url, options = {}) => {
+  const headers = { ...options.headers };
+
+  if (options.body && typeof options.body === 'string') {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  return fetch(url, { ...options, headers })
     .then((res) => {
-       if (!res.ok) {
+      if (res.status === 401) {
+        throw new ApiError('Нет авторизации', 401);
+      }
+      if (!res.ok) {
         return res.json().catch(() => ({}))
           .then((data) => {
             throw new ApiError(
-              data?.error || `Ошибка загрузки комментариев: ${res.status}`,
+              data?.error || `Ошибка HTTP: ${res.status}`,
               res.status
             );
           });
       }
+      if (res.status === 204) return null;
       return res.json();
-    })
+    });
+};
+
+export const loadCommentsList = () => {
+  return request(`${host}/comments`)
     .then((responseData) => {
-      const rawComments = responseData.comments || [];
+      const rawComments = responseData?.comments || [];
       return rawComments.map((comment) => ({
         id: comment.id,
         name: comment.author?.name ?? 'Аноним',
@@ -35,28 +69,25 @@ export const loadCommentsList = () => {
 };
 
 export const postComment = (name, text) => {
-  return fetch(host + '/comments', {
+  return request(`${host}/comments`, {
     method: 'POST',
-    headers: { 'Content-Type': '' },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ name, text, forceError: false }),
-  })
-  .then((res) => {
-    if (!res.ok) {
-      return res.json().catch(() => ({}))
-        .then((data) => {
-          throw new ApiError(
-            data?.error || `Ошибка отправки комментария: ${res.status}`,
-            res.status
-          );
-        });
-    }
-    if (res.status === 204) return null;
-    return res.json().catch(() => null);
   });
 };
-export class ApiError extends Error {
-  constructor(message, status) {
-    super(message);
-    this.status = status;
-  }
+
+export const login = (loginValue, password) => {
+  return request(`${authHost}/login`, {
+    method: 'POST',
+    body: JSON.stringify({ login: loginValue, password }),
+  });
+};
+
+export const registration = (name, loginValue, password) => {
+  return request(authHost, {
+    method: 'POST',
+    body: JSON.stringify({ name, login: loginValue, password }),
+  });
 };
