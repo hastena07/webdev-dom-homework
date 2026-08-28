@@ -63,10 +63,10 @@ export function renderComments(commentsListEl) {
 
     likeButton.dataset.id = String(comment.id);
 
-    // Обработчик клика по лайку
+    
     likeButton.addEventListener('click', () => {
       toggleLike(comment.id);
-      renderComments(commentsListEl); // перерисовать, чтобы обновить классы/счётчик
+      renderComments(commentsListEl); 
     });
 
     likesWrap.appendChild(likesCounter);
