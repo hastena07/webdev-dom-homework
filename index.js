@@ -21,7 +21,7 @@ const initAuth = () => {
     addFormContainer.style.display = 'flex';
     authArea.style.display = 'none';
   } else {
-   
+    
     addFormContainer.style.display = 'none';
     authArea.innerHTML = `
       <p style="font-size: 20px; color: #fff;">
@@ -68,7 +68,7 @@ const validateComment = (name, text) => {
   return true;
 };
 
-// Отправка комментария
+
 const handleSubmit = () => {
   const name = nameInput.value.trim();
   const text = textInput.value.trim();
