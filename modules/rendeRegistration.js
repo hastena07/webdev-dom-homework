@@ -40,12 +40,10 @@ export const renderRegistration = () => {
 
   container.innerHTML = regHtml;
 
-  // Кнопка «Войти» → форма входа
   document.getElementById('to-login').addEventListener('click', () => {
     renderLogin();
   });
 
-  // Кнопка «Зарегистрироваться»
   const submitBtn = document.getElementById('reg-submit');
 
   submitBtn.addEventListener('click', () => {
@@ -57,8 +55,16 @@ export const renderRegistration = () => {
     const loginValue = loginEl.value.trim();
     const passwordValue = passwordEl.value.trim();
 
-    if (!nameValue || !loginValue || !passwordValue) {
-      alert('Заполните все поля');
+    if (!nameValue || nameValue.length < 2) {
+      alert('Имя должно быть не короче 2 символов');
+      return;
+    }
+    if (!loginValue || loginValue.length < 3) {
+      alert('Логин должен быть не короче 3 символов');
+      return;
+    }
+    if (!passwordValue || passwordValue.length < 3) {
+      alert('Пароль должен быть не короче 3 символов');
       return;
     }
 

@@ -13,12 +13,13 @@
 
       <ul class="comments" id="comments-list"></ul>
 
-      <div class="add-form" id="add-form-container">
+      <div class="add-form" id="add-form-container" style="display: none;">
         <input
           type="text"
           class="add-form-name"
           id="comment-name"
           placeholder="Введите ваше имя"
+          readonly
         />
         <textarea
           class="add-form-text"
@@ -30,6 +31,7 @@
           <button class="add-form-button" id="add-comment-btn">Написать</button>
         </div>
         <div class="form-loading" style="display: none;">Комментарий добавляется...</div>
+        <button class="add-form-button-exit" id="logout-btn">Выйти</button>
       </div>
 
       <div id="auth-area" style="display: none;"></div>

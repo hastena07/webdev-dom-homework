@@ -1,12 +1,13 @@
-import { escapeHtml } from '../modules/utils.js';
-import { commentsState, toggleLike } from '../modules/comments.js';
+import { escapeHtml } from './utils.js';
+import { commentsState, toggleLike } from './comments.js';
 
 export function renderComments(commentsListEl) {
   if (!commentsListEl) return;
   commentsListEl.innerHTML = '';
 
   if (commentsState.length === 0) {
-    commentsListEl.innerHTML = '<li style="padding:48px; color:#888;">Комментариев пока нет</li>';
+    commentsListEl.innerHTML =
+      '<li style="padding:48px; color:#888;">Комментариев пока нет</li>';
     return;
   }
 
@@ -63,10 +64,16 @@ export function renderComments(commentsListEl) {
 
     likeButton.dataset.id = String(comment.id);
 
-    
     likeButton.addEventListener('click', () => {
       toggleLike(comment.id);
-      renderComments(commentsListEl); 
+      renderComments(commentsListEl);
+
+     
+      toggleLike(comment.id)
+        .then(() => {
+          renderComments(commentsListEl);
+        })
+        .catch(() => {});
     });
 
     likesWrap.appendChild(likesCounter);
