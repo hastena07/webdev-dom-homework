@@ -1,9 +1,4 @@
-import {
-  loadCommentsList,
-  postComment,
-  token,
-  name,
-  clearAuth,
+import { loadCommentsList, postComment, token, name, clearAuth,
 } from './modules/api.js';
 import { commentsState, updateComments } from './modules/comments.js';
 import { renderComments } from './modules/renderComments.js';
@@ -42,8 +37,6 @@ const initAuth = () => {
     document.getElementById('go-login').addEventListener('click', renderLogin);
   }
 };
-
-
 const loadAndRender = () => {
   globalLoader.style.display = 'block';
   commentsListEl.style.display = 'none';
@@ -63,7 +56,6 @@ const loadAndRender = () => {
     });
 };
 
-
 const validateComment = (text) => {
   if (!text || text.trim().length < 3) {
     alert('Комментарий должен быть не короче 3 символов');
@@ -71,11 +63,8 @@ const validateComment = (text) => {
   }
   return true;
 };
-
-// Отправка комментария
 const handleSubmit = () => {
   const text = textInput.value.trim();
-
   if (!validateComment(text)) return;
 
   if (!token) {
@@ -117,6 +106,5 @@ logoutBtn.addEventListener('click', () => {
   window.location.reload();
 });
 
-// Запуск приложения
 initAuth();
 loadAndRender();
