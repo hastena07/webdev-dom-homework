@@ -20,7 +20,7 @@ const submitBtn = document.getElementById('add-comment-btn');
 const formLoading = document.querySelector('.form-loading');
 const logoutBtn = document.getElementById('logout-btn');
 
-// Инициализация авторизации
+
 const initAuth = () => {
   const savedToken = localStorage.getItem('app_token');
   const savedName = localStorage.getItem('app_name');
@@ -43,7 +43,7 @@ const initAuth = () => {
   }
 };
 
-// Загрузка и рендер комментариев
+
 const loadAndRender = () => {
   globalLoader.style.display = 'block';
   commentsListEl.style.display = 'none';
@@ -63,7 +63,7 @@ const loadAndRender = () => {
     });
 };
 
-// Валидация
+
 const validateComment = (text) => {
   if (!text || text.trim().length < 3) {
     alert('Комментарий должен быть не короче 3 символов');
