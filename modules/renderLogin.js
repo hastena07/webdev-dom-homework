@@ -32,13 +32,9 @@ export const renderLogin = () => {
   `;
 
   container.innerHTML = loginHtml;
-
-  // Кнопка «Зарегистрироваться» → форма регистрации
   document.getElementById('to-register').addEventListener('click', () => {
     renderRegistration();
   });
-
-  // Кнопка «Войти»
   const submitBtn = document.getElementById('login-submit');
 
   submitBtn.addEventListener('click', () => {
@@ -60,7 +56,7 @@ export const renderLogin = () => {
       .then((data) => {
         setToken(data.user.token);
         setName(data.user.name);
-        
+       
         window.location.reload();
       })
       .catch((error) => {

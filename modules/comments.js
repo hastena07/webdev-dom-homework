@@ -13,9 +13,11 @@ export function toggleLike(id) {
 
   comment.isLikeLoading = true;
 
-  delay(800).then(() => {
+  return delay(800).then(() => {
     comment.isLiked = !comment.isLiked;
-    comment.likesCount = comment.isLiked ? comment.likesCount + 1 : comment.likesCount - 1;
+    comment.likesCount = comment.isLiked
+      ? comment.likesCount + 1
+      : comment.likesCount - 1;
     comment.isLikeLoading = false;
   });
 }

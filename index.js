@@ -1,8 +1,8 @@
-import { loadCommentsList, postComment, token } from './modules/api.js';
+import { loadCommentsList, postComment, token, name, clearAuth,
+} from './modules/api.js';
 import { commentsState, updateComments } from './modules/comments.js';
 import { renderComments } from './modules/renderComments.js';
 import { renderLogin } from './modules/renderLogin.js';
-import { renderRegistration } from './modules/rendeRegistration.js';
 import { escapeHtml } from './modules/utils.js';
 
 const commentsListEl = document.getElementById('comments-list');
@@ -13,15 +13,18 @@ const nameInput = document.getElementById('comment-name');
 const textInput = document.getElementById('comment-text');
 const submitBtn = document.getElementById('add-comment-btn');
 const formLoading = document.querySelector('.form-loading');
+const logoutBtn = document.getElementById('logout-btn');
 
 
 const initAuth = () => {
   const savedToken = localStorage.getItem('app_token');
-  if (savedToken) {
+  const savedName = localStorage.getItem('app_name');
+
+  if (savedToken && savedName) {
     addFormContainer.style.display = 'flex';
     authArea.style.display = 'none';
+    nameInput.value = savedName;
   } else {
-    
     addFormContainer.style.display = 'none';
     authArea.innerHTML = `
       <p style="font-size: 20px; color: #fff;">
@@ -34,8 +37,6 @@ const initAuth = () => {
     document.getElementById('go-login').addEventListener('click', renderLogin);
   }
 };
-
-
 const loadAndRender = () => {
   globalLoader.style.display = 'block';
   commentsListEl.style.display = 'none';
@@ -55,25 +56,16 @@ const loadAndRender = () => {
     });
 };
 
-
-const validateComment = (name, text) => {
-  if (!name || name.trim().length < 3) {
-    alert('Имя должно быть не короче 3 символов');
-    return false;
-  }
+const validateComment = (text) => {
   if (!text || text.trim().length < 3) {
     alert('Комментарий должен быть не короче 3 символов');
     return false;
   }
   return true;
 };
-
-
 const handleSubmit = () => {
-  const name = nameInput.value.trim();
   const text = textInput.value.trim();
-
-  if (!validateComment(name, text)) return;
+  if (!validateComment(text)) return;
 
   if (!token) {
     renderLogin();
@@ -84,9 +76,8 @@ const handleSubmit = () => {
   formLoading.style.display = 'block';
   submitBtn.textContent = 'Добавляем...';
 
-  postComment(name, text)
+  postComment(text)
     .then(() => {
-      nameInput.value = '';
       textInput.value = '';
       return loadAndRender();
     })
@@ -95,7 +86,7 @@ const handleSubmit = () => {
       if (err.status === 500) {
         alert('Сервер недоступен. Попробуйте позже.');
       } else if (err.status === 400) {
-        alert('Некорректные данные. Проверьте имя и текст комментария.');
+        alert('Некорректные данные. Проверьте текст комментария.');
       } else {
         alert(err.message || 'Ошибка отправки комментария');
       }
@@ -109,6 +100,11 @@ const handleSubmit = () => {
 
 submitBtn.addEventListener('click', handleSubmit);
 
+// Выход
+logoutBtn.addEventListener('click', () => {
+  clearAuth();
+  window.location.reload();
+});
 
 initAuth();
 loadAndRender();

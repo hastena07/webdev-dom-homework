@@ -1,5 +1,5 @@
 const host = 'https://wedev-api.sky.pro/api/v2/:hastena07';
-const authHost = 'https://wedev-api.sky.pro/api/hastena07';
+const authHost = 'https://wedev-api.sky.pro/api/user';
 
 export let token = localStorage.getItem('app_token') || '';
 export const setToken = (newToken) => {
@@ -13,6 +13,13 @@ export const setName = (newName) => {
   localStorage.setItem('app_name', newName);
 };
 
+export const clearAuth = () => {
+  token = '';
+  name = '';
+  localStorage.removeItem('app_token');
+  localStorage.removeItem('app_name');
+};
+
 export class ApiError extends Error {
   constructor(message, status) {
     super(message);
@@ -22,10 +29,6 @@ export class ApiError extends Error {
 
 const request = (url, options = {}) => {
   const headers = { ...options.headers };
-
-  if (options.body && typeof options.body === 'string') {
-    headers['Content-Type'] = 'application/json';
-  }
 
   return fetch(url, { ...options, headers })
     .then((res) => {
@@ -68,13 +71,15 @@ export const loadCommentsList = () => {
     });
 };
 
-export const postComment = (name, text) => {
+export const postComment = (text) => {
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   return request(`${host}/comments`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ name, text, forceError: false }),
+    headers,
+    body: JSON.stringify({ text, forceError: false }),
   });
 };
 
